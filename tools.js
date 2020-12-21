@@ -1,7 +1,7 @@
 class Kyle {
-  constructor () {}
+  constructor() {}
   /* 深克隆 */
-  deepClone (obj) {
+  deepClone(obj) {
     let objClone = Array.isArray(obj) ? [] : {}
     if (obj instanceof Object || Array.isArray(obj)) {
       for (let key of [
@@ -20,21 +20,25 @@ class Kyle {
     return objClone
   }
   /* 依据对象属性去重 */
-  objUnique (arr, key) {
+  objUnique(arr, prop) {
     let obj = {}
     arr.reduce((s, v) => {
-      obj[v[key]] ? '' : (obj[v[key]] = true && s.push(v))
+      obj[v[prop]] ? '' : (obj[v[prop]] = true && s.push(v))
       return s
     }, [])
   }
+  /* 依据对象属性排序 */
+  sortByProp(arr, prop) {
+    return arr.sort((a, b) => a[prop] - b[prop])
+  }
   /* 数组去重 */
-  arrUnique (arr) {
+  arrUnique(arr) {
     return [...new Set(arr)]
   }
   // 防抖
-  debounce (fn, delay) {
+  debounce(fn, delay) {
     let timer = null
-    return arg => {
+    return (arg) => {
       timer && clearTimeout(timer)
       timer = setTimeout(() => {
         fn(arg)
@@ -42,9 +46,9 @@ class Kyle {
     }
   }
   // 节流
-  throttle (fn, delay) {
+  throttle(fn, delay) {
     let timer, lastTime
-    return args => {
+    return (args) => {
       const now = Date.now()
       const space = now - lastTime
       if (lastTime && space < delay) {
@@ -59,13 +63,13 @@ class Kyle {
     }
   }
   // 金钱格式化
-  formatMoney (str) {
+  formatMoney(str) {
     return `${str}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   }
   // 日期格式化
-  formatDate (time, format = 'YY-MM-DD hh:mm:ss') {
+  formatDate(time, format = 'YY-MM-DD hh:mm:ss') {
     let date = new Date(time)
-    let pad = v => `${v}`.padStart(2, 0)
+    let pad = (v) => `${v}`.padStart(2, 0)
     let year = date.getFullYear(),
       month = date.getMonth() + 1, //月份是从0开始的
       day = date.getDate(),
@@ -81,39 +85,136 @@ class Kyle {
       .replace(/ss/g, pad(sec))
   }
   // 随机数范围
-  randomRange (lower = 0, upper = 0) {
+  randomRange(lower = 0, upper = 0) {
     return Math.floor(Math.random() * (upper - lower) + lower)
   }
   // 横线转驼峰
-  canalize (str) {
+  canalize(str) {
     let humpReg = /-(\w)/g
     return str.replace(humpReg, (_, c) => c && c.toUpperCase())
   }
   // 驼峰转横线
-  hyphenate (str) {
+  hyphenate(str) {
     let hyphenateRE = /\B([A-Z])/g
     return str.replace(hyphenateRE, '-$1').toLowerCase()
   }
   /* 求和 */
-  sum (arr) {
+  sum(arr) {
     if (!Array.isArray(arr)) return
     return arr.reduce((t, v) => t + v, 0)
   }
   /* 平均数 */
-  avg(arr){
+  avg(arr) {
     if (!Array.isArray(arr)) return
-    return arr.reduce((t, v) => t + v, 0)/arr.length
+    return arr.reduce((t, v) => t + v, 0) / arr.length
   }
   /* 唯一值 */
-  filterOnly(arr){
+  filterOnly(arr) {
     if (!Array.isArray(arr)) return
-    return arr.filter(v=>arr.indexOf(v)===arr.lastIndexOf(v))
+    return arr.filter((v) => arr.indexOf(v) === arr.lastIndexOf(v))
+  }
+  /**
+   * 数组转树
+   * @param {Array} 输入
+   * @param {Object.String} keyMap.KEY_ID 表示唯一性键值(id)
+   * @param {Object.String} keyMap.KEY_PID 对应的父id
+   * @param {Object.String} keyMap.KEY_ORDER 排序依据的键值
+   * @returns {Object} 树结构
+   */
+  arrayToTree(list, { KEY_ID, KEY_PID, KEY_ORDER }) {
+    const roots = []
+    // 当前非根节点
+    let childrenNode = []
+    // 递归单个根节点
+    const findChild = (root) => {
+      if (!childrenNode.length) return
+      let newChildNode = []
+      childrenNode.forEach((child) => {
+        if (root[KEY_ID] === child[KEY_PID]) {
+          if (!root.children) root.children = []
+          root.children.push(child)
+          findChild(child)
+        } else {
+          newChildNode.push(child)
+        }
+      })
+    // 分组根和非根节点
+    list.forEach((item) => {
+      if (!item[KEY_PID] || item[KEY_PID] === '0') {
+        roots.push(item)
+      } else {
+        childrenNode.push(item)
+      }
+    })
+
+
+      // 排序
+      if (KEY_ORDER && root.children && root.children.length > 1) {
+        root.children = root.children.sort(
+          (prev, current) => prev[KEY_ORDER] - current[KEY_ORDER]
+        )
+      }
+      childrenNode = newChildNode
+    }
+    // 遍历根节点
+    for (const root of roots) {
+      findChild(root)
+    }
+
+    return roots
+  }
+  /**
+   * 树转数组
+   * @param {Array} 输入树结构
+   * @returns {Array} 输出数组
+   */
+  treeToArray(tree, arr = []) {
+    tree.forEach(item=> {
+      const { children } = item
+      if (children) {
+        delete item.children
+
+        if (children.length) {
+          arr.push(item)
+          return this.treeToArray(children, arr)
+        }
+      }
+      arr.push(item)
+    })
+    return arr
   }
 }
+
 const hk = new Kyle()
 // let res = hk.formatDate(Date.now(),'YY/MM/DD hh:mm:ss')
 // let res = hk.formatMoney(11111111111)
 // let res = hk.randomRange(1,10)
 // let res = hk.canalize('class-name')
 // let res = hk.hyphenate('className')
-console.log(res)
+const array = [
+  {
+    id: 1,
+    name: '蔬菜',
+    order: 1
+  },
+  {
+    id: 2,
+    name: '土豆',
+    pid: 1,
+    order: 2
+  },
+  {
+    id: 3,
+    name: '豆角',
+    pid: 1,
+    order: 1
+  },
+  {
+    id: 4,
+    name: '水果',
+    order: 2
+  }
+]
+console.log(
+  hk.arrayToTree(array, { KEY_ID: 'id', KEY_PID: 'pid', KEY_ORDER: 'order' })
+)
