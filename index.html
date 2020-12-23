@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  <script src="./data.js"></script>
-  <script src="./tools.js"></script>
-  <script>
-    console.log(cityList)
-//    console.log(
-//   hk.arrayToTree(cityList, { KEY_ID: 'id', KEY_PID: 'pId', })
-// )
-const arr =hk.arrayToTree(cityList, { KEY_ID: 'id', KEY_PID: 'pId', })
-console.log(hk.treeToArray(arr))
-  </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="./data.js"></script>
+    <script src="./tools.js"></script>
+    <script>
+      const hk = new Kyle()
+      const arr = hk.arrayToTree(cityList, { KEY_ID: 'id', KEY_PID: 'pId' })
+      console.log(arr)
+      let a = JSON.parse(JSON.stringify(arr))
+      console.log(hk.treeToArray(a))
+    </script>
+  </body>
 </html>

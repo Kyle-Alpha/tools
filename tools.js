@@ -125,19 +125,6 @@ class Kyle {
     const roots = []
     // 当前非根节点
     let childrenNode = []
-    // 递归单个根节点
-    const findChild = (root) => {
-      if (!childrenNode.length) return
-      let newChildNode = []
-      childrenNode.forEach((child) => {
-        if (root[KEY_ID] === child[KEY_PID]) {
-          if (!root.children) root.children = []
-          root.children.push(child)
-          findChild(child)
-        } else {
-          newChildNode.push(child)
-        }
-      })
     // 分组根和非根节点
     list.forEach((item) => {
       if (!item[KEY_PID] || item[KEY_PID] === '0') {
@@ -146,7 +133,19 @@ class Kyle {
         childrenNode.push(item)
       }
     })
-
+    // 递归单个根节点
+    const findChild = (root) => {
+      if (!childrenNode.length) return
+      let newChildNode = []
+      childrenNode.forEach((child) => {
+        if (root[KEY_ID] === child[KEY_PID]) {
+          if (!root.children ) root.children = []
+          root.children.push(child)
+          findChild(child)
+        } else {
+          newChildNode.push(child)
+        }
+      })
 
       // 排序
       if (KEY_ORDER && root.children && root.children.length > 1) {
@@ -157,10 +156,7 @@ class Kyle {
       childrenNode = newChildNode
     }
     // 遍历根节点
-    for (const root of roots) {
-      findChild(root)
-    }
-
+    roots.forEach((root) => findChild(root))
     return roots
   }
   /**
@@ -168,53 +164,19 @@ class Kyle {
    * @param {Array} 输入树结构
    * @returns {Array} 输出数组
    */
-  treeToArray(tree, arr = []) {
-    tree.forEach(item=> {
+  treeToArray(tree, flatArr = []) {
+    tree.forEach((item) => {
       const { children } = item
       if (children) {
         delete item.children
 
         if (children.length) {
-          arr.push(item)
-          return this.treeToArray(children, arr)
+          flatArr.push(item)
+          return this.treeToArray(children, flatArr)
         }
       }
-      arr.push(item)
+      flatArr.push(item)
     })
-    return arr
+    return flatArr
   }
 }
-
-const hk = new Kyle()
-// let res = hk.formatDate(Date.now(),'YY/MM/DD hh:mm:ss')
-// let res = hk.formatMoney(11111111111)
-// let res = hk.randomRange(1,10)
-// let res = hk.canalize('class-name')
-// let res = hk.hyphenate('className')
-const array = [
-  {
-    id: 1,
-    name: '蔬菜',
-    order: 1
-  },
-  {
-    id: 2,
-    name: '土豆',
-    pid: 1,
-    order: 2
-  },
-  {
-    id: 3,
-    name: '豆角',
-    pid: 1,
-    order: 1
-  },
-  {
-    id: 4,
-    name: '水果',
-    order: 2
-  }
-]
-console.log(
-  hk.arrayToTree(array, { KEY_ID: 'id', KEY_PID: 'pid', KEY_ORDER: 'order' })
-)
