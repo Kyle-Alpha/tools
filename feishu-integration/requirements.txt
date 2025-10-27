@@ -1,0 +1,27 @@
+# 飞书集成依赖包
+
+# 核心依赖
+requests>=2.28.0
+python-dotenv>=1.0.0
+
+# 加密相关（用于签名验证和事件解密）
+pycryptodome>=3.17.0
+
+# 开发和测试依赖
+pytest>=7.2.0
+pytest-asyncio>=0.20.0
+black>=23.0.0
+flake8>=6.0.0
+
+# Web框架（如果需要接收飞书事件回调）
+flask>=2.3.0
+fastapi>=0.100.0
+uvicorn>=0.23.0
+
+# 异步支持（可选）
+aiohttp>=3.8.0
+httpx>=0.24.0
+
+# 日志和监控（可选）
+loguru>=0.7.0
+sentry-sdk>=1.29.0
